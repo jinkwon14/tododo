@@ -8,6 +8,8 @@ struct InboxView: View {
     private var tasks: [Task]
     @Query(sort: [SortDescriptor(\Category.sortOrder)]) private var categories: [Category]
     @State private var isAddPresented = false
+    @State private var isAddCategoryPresented = false
+    @State private var pendingCategoryID: UUID?
 
     init() {}
 
@@ -28,7 +30,7 @@ struct InboxView: View {
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
-                .background(gradientBackground)
+                .background(scenicBackground)
                 .safeAreaPadding(.bottom, 120)
                 .refreshable {
                     await MainActor.run {
@@ -53,6 +55,12 @@ struct InboxView: View {
         .sheet(isPresented: $isAddPresented) {
             QuickAddView()
                 .presentationBackground(.clear)
+        }
+        .sheet(isPresented: $isAddCategoryPresented) {
+            NewCategoryView(onSave: { category in
+                pendingCategoryID = category.id
+            })
+            .presentationBackground(.thinMaterial)
         }
         .onAppear(perform: ensureDefaultCategories)
     }
@@ -126,17 +134,40 @@ struct InboxView: View {
         .accessibilityLabel(Text(task.title))
     }
 
-    private var gradientBackground: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.05, green: 0.1, blue: 0.15),
-                Color(red: 0.12, green: 0.18, blue: 0.24),
-                Color(red: 0.08, green: 0.16, blue: 0.18)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
+    private var scenicBackground: some View {
+        ZStack {
+            Image("AuroraScenic")
+                .resizable()
+                .scaledToFill()
+                .ignoresSafeArea()
+                .overlay(
+                    LinearGradient(
+                        colors: [Color.black.opacity(0.35), Color.black.opacity(0.75)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .blur(radius: 6)
+            LinearGradient(
+                colors: [
+                    Color(red: 0.09, green: 0.15, blue: 0.2).opacity(0.9),
+                    Color(red: 0.03, green: 0.05, blue: 0.09).opacity(0.95)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+            .blendMode(.softLight)
+            .overlay(
+                RadialGradient(
+                    colors: [Color.white.opacity(0.18), .clear],
+                    center: .topLeading,
+                    startRadius: 40,
+                    endRadius: 420
+                )
+                .ignoresSafeArea()
+            )
+        }
     }
 
     private var floatingAddButton: some View {
@@ -147,8 +178,15 @@ struct InboxView: View {
                 .padding()
                 .background(
                     Circle()
-                        .fill(Palette.color(for: "Calm").opacity(0.8))
-                        .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 8)
+                        .fill(
+                            RadialGradient(
+                                colors: [Palette.color(for: "Calm").opacity(0.85), Palette.color(for: "Calm").opacity(0.45)],
+                                center: .center,
+                                startRadius: 4,
+                                endRadius: 48
+                            )
+                        )
+                        .shadow(color: Palette.color(for: "Calm").opacity(0.3), radius: 18, x: 0, y: 10)
                 )
         }
         .buttonStyle(.plain)
@@ -165,23 +203,67 @@ struct InboxView: View {
                 .frame(height: 112)
                 .overlay(
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .strokeBorder(.white.opacity(0.12), lineWidth: 1)
+                        .strokeBorder(.white.opacity(0.18), lineWidth: 1.2)
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
                         .fill(.clear)
                         .glassEffect(.regular, in: .rect(cornerRadius: 36))
+                        .shadow(color: .black.opacity(0.25), radius: 24, x: 0, y: 18)
                 )
                 .overlay(alignment: .center) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 4) {
-                            ForEach(categories) { category in
-                                BucketOrb(category: category, onDropIDs: { ids in
-                                    assign(ids: ids, to: category)
-                                })
+                    ScrollViewReader { proxy in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(categories) { category in
+                                    BucketOrb(category: category, onDropIDs: { ids in
+                                        assign(ids: ids, to: category)
+                                    })
+                                    .id(category.id)
+                                }
+                                Button {
+                                    isAddCategoryPresented = true
+                                } label: {
+                                    VStack(spacing: 8) {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                                .fill(
+                                                    LinearGradient(
+                                                        colors: [Color.white.opacity(0.28), Color.white.opacity(0.05)],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    )
+                                                )
+                                                .frame(width: 72, height: 72)
+                                                .glassEffect(.regular, in: .rect(cornerRadius: 24))
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                                        .strokeBorder(.white.opacity(0.15), lineWidth: 1)
+                                                )
+                                                .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 10)
+                                            Image(systemName: "plus")
+                                                .font(.title2.weight(.semibold))
+                                                .foregroundStyle(.white)
+                                        }
+                                        Text("New")
+                                            .font(.footnote)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .padding(.horizontal, 12)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            .padding(.horizontal, 24)
+                        }
+                        .onChange(of: categories.map(\.id)) { _ in
+                            guard let target = pendingCategoryID else { return }
+                            DispatchQueue.main.async {
+                                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                                    proxy.scrollTo(target, anchor: .center)
+                                }
+                                pendingCategoryID = nil
                             }
                         }
-                        .padding(.horizontal, 24)
                     }
                 }
                 .padding(.horizontal)

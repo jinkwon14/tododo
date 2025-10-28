@@ -32,7 +32,17 @@ struct QuickAddView: View {
                     .padding(.vertical, 12)
                     .background(
                         Capsule()
-                            .fill(Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.3 : 0.8))
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.25 : 0.95),
+                                        Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.2 : 0.6)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .shadow(color: Palette.color(for: "Calm").opacity(0.35), radius: 16, x: 0, y: 10)
                     )
                     .foregroundStyle(.primary)
             }
@@ -43,6 +53,27 @@ struct QuickAddView: View {
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(.clear)
                 .glassEffect(.clear, in: .rect(cornerRadius: 32))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 32, style: .continuous)
+                        .stroke(.white.opacity(0.12), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.25), radius: 24, x: 0, y: 18)
+        )
+        .background(
+            ZStack {
+                Image("AuroraScenic")
+                    .resizable()
+                    .scaledToFill()
+                    .blur(radius: 18)
+                    .overlay(Color.black.opacity(0.45))
+                    .ignoresSafeArea()
+                LinearGradient(
+                    colors: [Color.clear, Color.black.opacity(0.45)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+            }
         )
         .presentationDetents([.fraction(0.35)])
         .onAppear {
