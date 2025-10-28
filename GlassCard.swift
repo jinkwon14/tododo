@@ -4,6 +4,8 @@ struct GlassCard<Content: View>: View {
     var tint: Color
     @ViewBuilder var content: Content
 
+    @State private var isPressed = false
+
     init(tint: Color, @ViewBuilder content: () -> Content) {
         self.tint = tint
         self.content = content()
@@ -15,30 +17,38 @@ struct GlassCard<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(.clear)
-                    .glassEffect(.regular.tint(tint), in: .rect(cornerRadius: 24))
-                    .overlay(
+                    .fill(
                         LinearGradient(
-                            colors: [Color.white.opacity(0.35), Color.white.opacity(0.05)],
+                            colors: [
+                                tint.opacity(0.18),
+                                tint.opacity(0.08)
+                            ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
-                        .blendMode(.screen)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    )
+                    // Apple Liquid Glass UI with interactive modifier
+                    .glassEffect(
+                        .regular
+                            .interactive()
+                            .tint(tint.opacity(isPressed ? 0.4 : 0.25)),
+                        in: .rect(cornerRadius: 24)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 24, style: .continuous)
-                            .stroke(.white.opacity(0.08), lineWidth: 1)
+                            .stroke(.white.opacity(0.12), lineWidth: 1)
                     )
             )
-            .shadow(color: tint.opacity(0.3), radius: 18, x: 0, y: 14)
+            .shadow(color: tint.opacity(0.25), radius: 16, x: 0, y: 12)
+            // Smooth liquid-like animations for state changes
+            .animation(.spring(response: 0.35, dampingFraction: 0.65), value: isPressed)
             .overlay(alignment: .bottom) {
                 Rectangle()
-                    .fill(tint.opacity(0.18))
+                    .fill(tint.opacity(0.22))
                     .frame(height: 2)
                     .blur(radius: 6)
                     .offset(y: 12)
-                    .opacity(0.6)
+                    .opacity(0.7)
             }
     }
 }
