@@ -120,7 +120,8 @@ struct InboxView: View {
                     Label(category.name, systemImage: category.icon)
                         .labelStyle(.iconOnly)
                         .font(.title3)
-                        .foregroundStyle(.secondary)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(tint)
                         .accessibilityHidden(true)
                 }
             }
@@ -165,22 +166,23 @@ struct InboxView: View {
             Label("Add", systemImage: "plus")
                 .labelStyle(.iconOnly)
                 .font(.title2.weight(.bold))
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(Palette.color(for: "Calm"))
                 .padding()
                 .background(
                     Circle()
                         .fill(.clear)
                         // Authentic Apple Liquid Glass for floating action button
                         .glassEffect(
-                            .regular
-                                .interactive()
-                                .tint(Palette.color(for: "Calm").opacity(0.18)),
+                            .clear
+                                .interactive(),
                             in: .circle
                         )
                         .overlay(
                             Circle()
                                 .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
                         )
-                        .shadow(color: Palette.color(for: "Calm").opacity(0.25), radius: 16, x: 0, y: 8)
+                        .shadow(color: .black.opacity(0.28), radius: 16, x: 0, y: 8)
                 )
         }
         .buttonStyle(.plain)
@@ -225,7 +227,8 @@ struct InboxView: View {
                                                 .frame(width: 72, height: 72)
                                                 // Authentic Apple Liquid Glass for new category button
                                                 .glassEffect(
-                                                    .regular.interactive(),
+                                                    .clear
+                                                        .interactive(),
                                                     in: .rect(cornerRadius: 24)
                                                 )
                                                 .overlay(
@@ -235,7 +238,8 @@ struct InboxView: View {
                                                 .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 8)
                                             Image(systemName: "plus")
                                                 .font(.title2.weight(.semibold))
-                                                .foregroundStyle(.white)
+                                                .symbolRenderingMode(.palette)
+                                                .foregroundStyle(Palette.color(for: "Calm"))
                                         }
                                         Text("New")
                                             .font(.footnote)

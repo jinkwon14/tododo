@@ -13,6 +13,10 @@ struct NewCategoryView: View {
 
     @State private var errorMessage: String?
 
+    private var normalizedName: String {
+        name.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
         VStack(spacing: 24) {
             Capsule()
@@ -104,20 +108,20 @@ struct NewCategoryView: View {
                             .fill(.clear)
                             // Authentic Apple Liquid Glass for save button
                             .glassEffect(
-                                .regular
-                                    .interactive()
-                                    .tint(color.opacity(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.08 : 0.22)),
+                                .clear
+                                    .interactive(),
                                 in: .rect(cornerRadius: 20)
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                                     .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
                             )
-                            .shadow(color: color.opacity(0.3), radius: 12, x: 0, y: 8)
+                            .shadow(color: .black.opacity(0.28), radius: 12, x: 0, y: 8)
                     )
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(color)
+                    .opacity(normalizedName.isEmpty ? 0.45 : 1)
             }
-            .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(normalizedName.isEmpty)
 
             Button("Cancel", role: .cancel, action: dismiss.callAsFunction)
                 .font(.subheadline)
@@ -147,7 +151,7 @@ struct NewCategoryView: View {
     }
 
     private func save() {
-        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedName = normalizedName
         guard !trimmedName.isEmpty else { return }
         guard let hex = color.hexString() else {
             errorMessage = "Unable to read selected color. Try again."
