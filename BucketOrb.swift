@@ -15,54 +15,40 @@ struct BucketOrb: View {
     @State private var isHovering = false
     @State private var isGlowing = false
 
-    // Calculate dynamic opacity based on task count
-    // More tasks = more opaque, fewer tasks = more transparent (liquid-like)
-    private var dynamicOpacity: (top: Double, bottom: Double) {
+    // Calculate dynamic tint based on task count for Liquid Glass
+    // More tasks = slightly more visible tint, fewer tasks = more transparent
+    private var dynamicTintOpacity: Double {
         let taskCount = category.tasks.count
-        // Base transparency: 0.25 (very liquid-like) to 0.75 (more solid)
-        let baseOpacity = min(0.25 + (Double(taskCount) * 0.05), 0.75)
-        let gradientDelta = 0.2
-        return (
-            top: baseOpacity + gradientDelta,
-            bottom: baseOpacity - gradientDelta
-        )
+        // Ultra-subtle tinting: 0.05 (almost invisible) to 0.12 (very subtle)
+        return min(0.05 + (Double(taskCount) * 0.007), 0.12)
     }
 
     var body: some View {
         VStack(spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Palette.color(for: category.colorID).opacity(dynamicOpacity.top),
-                                Palette.color(for: category.colorID).opacity(dynamicOpacity.bottom)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(.clear)
                     .frame(width: 72, height: 72)
-                    // Use interactive glass effect with dynamic tint based on glow state
+                    // Authentic Apple Liquid Glass with dynamic interactive tint
                     .glassEffect(
                         .regular
                             .interactive()
-                            .tint(Palette.color(for: category.colorID).opacity(isGlowing ? 0.6 : 0.3)),
+                            .tint(Palette.color(for: category.colorID).opacity(isGlowing ? 0.25 : dynamicTintOpacity)),
                         in: .circle
                     )
                     .overlay(
                         Circle()
-                            .strokeBorder(.white.opacity(0.22), lineWidth: 1)
+                            .strokeBorder(.white.opacity(0.18), lineWidth: 0.5)
                     )
                     // Glow effect when task is dropped
                     .shadow(
-                        color: Palette.color(for: category.colorID).opacity(isGlowing ? 0.7 : 0),
-                        radius: isGlowing ? 20 : 0,
+                        color: Palette.color(for: category.colorID).opacity(isGlowing ? 0.6 : 0),
+                        radius: isGlowing ? 24 : 0,
                         x: 0,
                         y: 0
                     )
                 CategoryIconView(icon: category.icon)
-                    .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
+                    .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1.5)
             }
             .scaleEffect(isHovering ? 1.08 : 1.0)
             // Smooth liquid-like animations for all state changes

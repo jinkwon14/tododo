@@ -178,15 +178,19 @@ struct InboxView: View {
                 .padding()
                 .background(
                     Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [Palette.color(for: "Calm").opacity(0.85), Palette.color(for: "Calm").opacity(0.45)],
-                                center: .center,
-                                startRadius: 4,
-                                endRadius: 48
-                            )
+                        .fill(.clear)
+                        // Authentic Apple Liquid Glass for floating action button
+                        .glassEffect(
+                            .regular
+                                .interactive()
+                                .tint(Palette.color(for: "Calm").opacity(0.18)),
+                            in: .circle
                         )
-                        .shadow(color: Palette.color(for: "Calm").opacity(0.3), radius: 18, x: 0, y: 10)
+                        .overlay(
+                            Circle()
+                                .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                        )
+                        .shadow(color: Palette.color(for: "Calm").opacity(0.25), radius: 16, x: 0, y: 8)
                 )
         }
         .buttonStyle(.plain)
@@ -201,16 +205,16 @@ struct InboxView: View {
             RoundedRectangle(cornerRadius: 36, style: .continuous)
                 .fill(.clear)
                 .frame(height: 112)
+                // Authentic Apple Liquid Glass for bottom tray
+                .glassEffect(
+                    .regular.interactive(),
+                    in: .rect(cornerRadius: 36)
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .strokeBorder(.white.opacity(0.18), lineWidth: 1.2)
+                        .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
                 )
-                .background(
-                    RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .fill(.clear)
-                        .glassEffect(.regular, in: .rect(cornerRadius: 36))
-                        .shadow(color: .black.opacity(0.25), radius: 24, x: 0, y: 18)
-                )
+                .shadow(color: .black.opacity(0.3), radius: 28, x: 0, y: 14)
                 .overlay(alignment: .center) {
                     ScrollViewReader { proxy in
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -227,20 +231,18 @@ struct InboxView: View {
                                     VStack(spacing: 8) {
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                                .fill(
-                                                    LinearGradient(
-                                                        colors: [Color.white.opacity(0.28), Color.white.opacity(0.05)],
-                                                        startPoint: .topLeading,
-                                                        endPoint: .bottomTrailing
-                                                    )
-                                                )
+                                                .fill(.clear)
                                                 .frame(width: 72, height: 72)
-                                                .glassEffect(.regular, in: .rect(cornerRadius: 24))
+                                                // Authentic Apple Liquid Glass for new category button
+                                                .glassEffect(
+                                                    .regular.interactive(),
+                                                    in: .rect(cornerRadius: 24)
+                                                )
                                                 .overlay(
                                                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                                        .strokeBorder(.white.opacity(0.15), lineWidth: 1)
+                                                        .strokeBorder(.white.opacity(0.18), lineWidth: 0.5)
                                                 )
-                                                .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 10)
+                                                .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 8)
                                             Image(systemName: "plus")
                                                 .font(.title2.weight(.semibold))
                                                 .foregroundStyle(.white)
