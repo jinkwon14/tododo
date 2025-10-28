@@ -16,30 +16,9 @@ struct GlassCard<Content: View>: View {
             .background(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(.clear)
-                    .glassEffect(.regular.tint(tint), in: .rect(cornerRadius: 24))
-                    .overlay(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.35), Color.white.opacity(0.05)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .blendMode(.screen)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24, style: .continuous)
-                            .stroke(.white.opacity(0.08), lineWidth: 1)
-                    )
+                    // Pure Apple Liquid Glass UI - no bespoke overlays
+                    .glassEffect(.regular.tint(tint.opacity(0.4)), in: .rect(cornerRadius: 24))
             )
-            .shadow(color: tint.opacity(0.3), radius: 18, x: 0, y: 14)
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(tint.opacity(0.18))
-                    .frame(height: 2)
-                    .blur(radius: 6)
-                    .offset(y: 12)
-                    .opacity(0.6)
-            }
     }
 }
 

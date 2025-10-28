@@ -52,12 +52,8 @@ struct QuickAddView: View {
         .background(
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(.clear)
+                // Pure Apple Liquid Glass UI
                 .glassEffect(.clear, in: .rect(cornerRadius: 32))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .stroke(.white.opacity(0.12), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.25), radius: 24, x: 0, y: 18)
         )
         .background(
             ZStack {

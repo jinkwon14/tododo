@@ -76,11 +76,8 @@ struct NewCategoryView: View {
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
                     .fill(.clear)
+                    // Pure Apple Liquid Glass UI
                     .glassEffect(.regular, in: .rect(cornerRadius: 28))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .stroke(.white.opacity(0.15), lineWidth: 1)
-                    )
             )
 
             if let errorMessage {

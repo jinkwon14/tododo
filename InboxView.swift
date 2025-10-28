@@ -198,76 +198,54 @@ struct InboxView: View {
     private var bottomTray: some View {
         VStack {
             Spacer()
-            RoundedRectangle(cornerRadius: 36, style: .continuous)
-                .fill(.clear)
-                .frame(height: 112)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .strokeBorder(.white.opacity(0.18), lineWidth: 1.2)
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .fill(.clear)
-                        .glassEffect(.regular, in: .rect(cornerRadius: 36))
-                        .shadow(color: .black.opacity(0.25), radius: 24, x: 0, y: 18)
-                )
-                .overlay(alignment: .center) {
-                    ScrollViewReader { proxy in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(categories) { category in
-                                    BucketOrb(category: category, onDropIDs: { ids in
-                                        assign(ids: ids, to: category)
-                                    })
-                                    .id(category.id)
-                                }
-                                Button {
-                                    isAddCategoryPresented = true
-                                } label: {
-                                    VStack(spacing: 8) {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                                .fill(
-                                                    LinearGradient(
-                                                        colors: [Color.white.opacity(0.28), Color.white.opacity(0.05)],
-                                                        startPoint: .topLeading,
-                                                        endPoint: .bottomTrailing
-                                                    )
-                                                )
-                                                .frame(width: 72, height: 72)
-                                                .glassEffect(.regular, in: .rect(cornerRadius: 24))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                                        .strokeBorder(.white.opacity(0.15), lineWidth: 1)
-                                                )
-                                                .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 10)
-                                            Image(systemName: "plus")
-                                                .font(.title2.weight(.semibold))
-                                                .foregroundStyle(.white)
-                                        }
-                                        Text("New")
-                                            .font(.footnote)
-                                            .foregroundStyle(.secondary)
+            // Using Apple's official Liquid Glass UI with GlassEffectContainer
+            GlassEffectContainer(spacing: 8) {
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(categories) { category in
+                                BucketOrb(category: category, onDropIDs: { ids in
+                                    assign(ids: ids, to: category)
+                                })
+                                .id(category.id)
+                            }
+                            Button {
+                                isAddCategoryPresented = true
+                            } label: {
+                                VStack(spacing: 8) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                            .fill(.clear)
+                                            .frame(width: 72, height: 72)
+                                            .glassEffect(.regular, in: .rect(cornerRadius: 24))
+                                        Image(systemName: "plus")
+                                            .font(.title2.weight(.semibold))
+                                            .foregroundStyle(.white)
                                     }
-                                    .padding(.horizontal, 12)
+                                    Text("New")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
                                 }
-                                .buttonStyle(.plain)
+                                .padding(.horizontal, 12)
                             }
-                            .padding(.horizontal, 24)
+                            .buttonStyle(.plain)
                         }
-                        .onChange(of: categories.map(\.id)) { _ in
-                            guard let target = pendingCategoryID else { return }
-                            DispatchQueue.main.async {
-                                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                                    proxy.scrollTo(target, anchor: .center)
-                                }
-                                pendingCategoryID = nil
+                        .padding(.horizontal, 24)
+                    }
+                    .onChange(of: categories.map(\.id)) { _ in
+                        guard let target = pendingCategoryID else { return }
+                        DispatchQueue.main.async {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                                proxy.scrollTo(target, anchor: .center)
                             }
+                            pendingCategoryID = nil
                         }
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 12)
+            }
+            .frame(height: 112)
+            .padding(.horizontal)
+            .padding(.bottom, 12)
         }
         .ignoresSafeArea(edges: .bottom)
     }
