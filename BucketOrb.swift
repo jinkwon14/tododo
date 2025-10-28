@@ -44,25 +44,20 @@ struct BucketOrb: View {
                             .opacity(isGlowing ? 1 : 0)
                     )
                 Circle()
-                    .fill(
-                        .linearGradient(
-                            colors: [
-                                Color.white.opacity(0.35),
-                                tint.opacity(0.22),
-                                tint.opacity(0.08)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(.clear)
                     .frame(width: 58, height: 58)
+                    .glassEffect(
+                        .clear
+                            .interactive(),
+                        in: .circle
+                    )
                     .overlay(
                         Circle()
                             .strokeBorder(
                                 .linearGradient(
                                     colors: [
-                                        Color.white.opacity(0.55),
-                                        Color.white.opacity(0.1)
+                                        Color.white.opacity(0.65),
+                                        Color.white.opacity(0.05)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -71,21 +66,36 @@ struct BucketOrb: View {
                             )
                             .blendMode(.plusLighter)
                     )
+                    .overlay(
+                        Circle()
+                            .fill(
+                                .linearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.2),
+                                        Color.white.opacity(0.08)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .blur(radius: 24)
+                            .blendMode(.plusLighter)
+                    )
                     .overlay(alignment: .topLeading) {
                         Circle()
-                            .fill(Color.white.opacity(0.45))
+                            .fill(Color.white.opacity(0.5))
                             .frame(width: 24, height: 24)
                             .blur(radius: 12)
                             .offset(x: -6, y: -8)
                     }
                     .overlay(alignment: .bottomTrailing) {
                         Circle()
-                            .fill(tint.opacity(0.25))
-                            .frame(width: 18, height: 18)
-                            .blur(radius: 10)
-                            .offset(x: 6, y: 8)
+                            .fill(Color.white.opacity(0.18))
+                            .frame(width: 20, height: 20)
+                            .blur(radius: 18)
+                            .offset(x: 7, y: 10)
                     }
-                    .shadow(color: tint.opacity(0.25), radius: 14, x: 0, y: 8)
+                    .shadow(color: Color.black.opacity(0.25), radius: 14, x: 0, y: 8)
                 CategoryIconView(icon: category.icon, tint: tint)
             }
             .scaleEffect(isHovering ? 1.08 : 1.0)

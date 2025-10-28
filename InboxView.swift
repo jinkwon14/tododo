@@ -172,20 +172,13 @@ struct InboxView: View {
     }
 
     private func taskRow(_ task: Task) -> some View {
-        let tint = Palette.color(for: task.category?.colorID)
+        let fallback = Palette.defaultPreset
+        let resolvedCategory = task.category ?? defaultCategory
+        let tint = Palette.color(for: resolvedCategory?.colorID ?? fallback.colorID)
+        let displayName = resolvedCategory?.name ?? fallback.name
+        let displayIcon = resolvedCategory?.icon ?? fallback.icon
         return GlassCard(tint: tint) {
             HStack(alignment: .center, spacing: 16) {
-                Button {
-                    toggle(task)
-                } label: {
-                    Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
-                        .foregroundStyle(task.isDone ? .green : .secondary)
-                        .contentTransition(.symbolEffect(.replace))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(task.isDone ? "Mark incomplete" : "Mark complete")
-
                 VStack(alignment: .leading, spacing: 6) {
                     Text(task.title)
                         .font(.headline)
@@ -212,6 +205,9 @@ struct InboxView: View {
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .onTapGesture {
+            toggle(task)
+        }
         .onDrag {
             Haptic.play(.tapLight)
             return NSItemProvider(object: task.id.uuidString as NSString)
@@ -252,6 +248,10 @@ struct InboxView: View {
                 .ignoresSafeArea()
             )
         }
+    }
+
+    private var defaultCategory: Category? {
+        categories.first { $0.sortOrder == 0 }
     }
 
     private var floatingAddButton: some View {
