@@ -9,6 +9,8 @@ struct InboxView: View {
     @Query(sort: [SortDescriptor(\Category.sortOrder)]) private var categories: [Category]
     @State private var isAddPresented = false
 
+    init() {}
+
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
