@@ -10,6 +10,10 @@ struct InboxView: View {
     @State private var isAddPresented = false
     @State private var isAddCategoryPresented = false
     @State private var pendingCategoryID: UUID?
+    @State private var activePushPopTaskID: UUID?
+    @State private var pickerAnchor: CGRect?
+    @State private var rowFrames: [UUID: CGRect] = [:]
+    @State private var skipNextTapTaskID: UUID?
 
     init() {}
 
@@ -32,6 +36,14 @@ struct InboxView: View {
                 .scrollContentBackground(.hidden)
                 .background(scenicBackground)
                 .safeAreaPadding(.bottom, 120)
+                .onPreferenceChange(TaskRowFramePreferenceKey.self) { value in
+                    rowFrames = value
+                    if let id = activePushPopTaskID, let frame = value[id] {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            pickerAnchor = frame
+                        }
+                    }
+                }
                 .refreshable {
                     await MainActor.run {
                         showAdd()
@@ -52,6 +64,7 @@ struct InboxView: View {
                 floatingAddButton
             }
         }
+        .coordinateSpace(name: "pickerArea")
         .sheet(isPresented: $isAddPresented) {
             QuickAddView()
                 .presentationBackground(.clear)
@@ -63,6 +76,24 @@ struct InboxView: View {
             .presentationBackground(.thinMaterial)
         }
         .onAppear(perform: ensureDefaultCategories)
+        .overlay(alignment: .topLeading) {
+            if let taskID = activePushPopTaskID,
+               let anchor = pickerAnchor,
+               let task = tasks.first(where: { $0.id == taskID }) {
+                CategoryPushPopPicker(
+                    categories: categories,
+                    anchorRect: anchor,
+                    selectedCategoryID: task.category?.id,
+                    isUnassigned: task.category == nil,
+                    onSelection: { category in
+                        apply(category: category, to: taskID)
+                    },
+                    onCancel: {
+                        dismissPicker()
+                    }
+                )
+            }
+        }
     }
 
     private func showAdd() {
@@ -76,6 +107,67 @@ struct InboxView: View {
             try context.save()
         } catch {
             assertionFailure("Failed to delete tasks: \(error.localizedDescription)")
+        }
+    }
+
+    private func categoryControl(for task: Task, tint: Color) -> some View {
+        let icon = task.category?.icon ?? "circle.grid.cross.fill"
+        return Button {
+            if skipNextTapTaskID == task.id {
+                skipNextTapTaskID = nil
+                return
+            }
+            skipNextTapTaskID = nil
+            Haptic.play(.tapLight)
+            togglePicker(for: task.id)
+        } label: {
+            Image(systemName: icon)
+                .font(.title3)
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(tint)
+                .padding(6)
+                .background(
+                    Circle()
+                        .fill(tint.opacity(0.12))
+                )
+        }
+        .buttonStyle(.plain)
+        .simultaneousGesture(
+            LongPressGesture(minimumDuration: 0.25)
+                .onEnded { _ in
+                    Haptic.play(.tapLight)
+                    skipNextTapTaskID = task.id
+                    togglePicker(for: task.id)
+                }
+        )
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    guard activePushPopTaskID != task.id else { return }
+                    Haptic.play(.tapLight)
+                    skipNextTapTaskID = task.id
+                    togglePicker(for: task.id)
+                }
+        )
+        .accessibilityLabel("Change category")
+    }
+
+    private func presentPicker(for taskID: UUID) {
+        if let frame = rowFrames[taskID] {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                pickerAnchor = frame
+                activePushPopTaskID = taskID
+            }
+        } else {
+            activePushPopTaskID = taskID
+        }
+    }
+
+    private func togglePicker(for taskID: UUID) {
+        if activePushPopTaskID == taskID {
+            dismissPicker()
+        } else {
+            presentPicker(for: taskID)
         }
     }
 
@@ -109,12 +201,7 @@ struct InboxView: View {
                     }
                 }
                 Spacer(minLength: 12)
-                Label(displayName, systemImage: displayIcon)
-                    .labelStyle(.iconOnly)
-                    .font(.title3)
-                    .symbolRenderingMode(.palette)
-                    .foregroundStyle(tint)
-                    .accessibilityHidden(true)
+                categoryControl(for: task, tint: tint)
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -127,10 +214,14 @@ struct InboxView: View {
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(task.title))
-        .accessibilityHint(Text(task.isDone ? "Double-tap to mark as incomplete" : "Double-tap to mark as complete"))
-        .accessibilityAction {
-            toggle(task)
-        }
+        .background(
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: TaskRowFramePreferenceKey.self,
+                    value: [task.id: proxy.frame(in: .named("pickerArea"))]
+                )
+            }
+        )
     }
 
     private var scenicBackground: some View {
@@ -318,6 +409,30 @@ struct InboxView: View {
         }
     }
 
+    private func apply(category: Category?, to taskID: UUID) {
+        guard let task = tasks.first(where: { $0.id == taskID }) else {
+            dismissPicker()
+            return
+        }
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.82)) {
+            task.category = category
+        }
+        do {
+            try context.save()
+        } catch {
+            assertionFailure("Failed to update task category: \(error.localizedDescription)")
+        }
+        dismissPicker()
+    }
+
+    private func dismissPicker() {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
+            activePushPopTaskID = nil
+            pickerAnchor = nil
+        }
+        skipNextTapTaskID = nil
+    }
+
     private func ensureDefaultCategories() {
         guard categories.isEmpty else { return }
         Palette.defaults.enumerated().forEach { index, preset in
@@ -335,4 +450,12 @@ struct InboxView: View {
 #Preview {
     InboxView()
         .modelContainer(PreviewSampleData.container)
+}
+
+private struct TaskRowFramePreferenceKey: PreferenceKey {
+    static var defaultValue: [UUID: CGRect] { [:] }
+
+    static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
+    }
 }
