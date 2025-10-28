@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import Foundation
 
 struct BucketOrb: View {
     let category: Category
@@ -32,8 +33,7 @@ struct BucketOrb: View {
         }
         .padding(.horizontal, 12)
         .onDrop(of: [.text], isTargeted: $isHovering) { providers in
-            Swift.Task { @MainActor in
-                let ids = await extractIDs(from: providers)
+            loadIDs(from: providers) { ids in
                 guard !ids.isEmpty else { return }
                 onDropIDs(ids)
                 Haptic.play(.dropSuccess)
@@ -42,27 +42,33 @@ struct BucketOrb: View {
         }
     }
 
-    private func extractIDs(from providers: [NSItemProvider]) async -> [UUID] {
-        await withTaskGroup(of: UUID?.self) { group in
-            for provider in providers where provider.hasItemConformingToTypeIdentifier(UTType.text.identifier) {
-                group.addTask {
-                    do {
-                        let data = try await provider.loadDataRepresentation(forTypeIdentifier: UTType.text.identifier)
-                        let string = String(data: data, encoding: .utf8)
-                        return string.flatMap { UUID(uuidString: $0.trimmingCharacters(in: .whitespacesAndNewlines)) }
-                    } catch {
-                        return nil
-                    }
-                }
-            }
+    private func loadIDs(from providers: [NSItemProvider], completion: @escaping ([UUID]) -> Void) {
+        let identifier = UTType.text.identifier
+        let group = DispatchGroup()
+        let lock = NSLock()
+        var collected: [UUID] = []
 
-            var results: [UUID] = []
-            for await value in group {
-                if let value {
-                    results.append(value)
+        for provider in providers where provider.hasItemConformingToTypeIdentifier(identifier) {
+            group.enter()
+            provider.loadDataRepresentation(forTypeIdentifier: identifier) { data, _ in
+                defer { group.leave() }
+
+                guard
+                    let data,
+                    let string = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                    let uuid = UUID(uuidString: string)
+                else {
+                    return
                 }
+
+                lock.lock()
+                collected.append(uuid)
+                lock.unlock()
             }
-            return results
+        }
+
+        group.notify(queue: .main) {
+            completion(collected)
         }
     }
 }
