@@ -12,6 +12,7 @@ enum Palette {
     ]
 
     static func color(for id: String?) -> Color {
+<<<<<<< HEAD
         guard let id else {
             return Color(red: 0.85, green: 0.9, blue: 0.95)
         }
@@ -22,6 +23,12 @@ enum Palette {
             return parsed
         }
         return Color(red: 0.85, green: 0.9, blue: 0.95)
+=======
+        guard let id, let color = colors[id] else {
+            return Color(red: 0.85, green: 0.9, blue: 0.95)
+        }
+        return color
+>>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
     }
 
     static var defaults: [(name: String, icon: String, colorID: String)] {
