@@ -127,12 +127,9 @@ struct NewCategoryView: View {
         .frame(maxWidth: .infinity)
         .background(
             ZStack {
-                Image("AuroraScenic")
-                    .resizable()
-                    .scaledToFill()
-                    .blur(radius: 12)
-                    .overlay(Color.black.opacity(0.35))
-                    .ignoresSafeArea()
+                AuroraBackground()
+                    .blur(radius: 16)
+                    .overlay(Color.black.opacity(0.25))
                 LinearGradient(
                     colors: [Color.black.opacity(0.6), Color.clear],
                     startPoint: .top,
