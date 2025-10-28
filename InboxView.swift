@@ -6,7 +6,7 @@ struct InboxView: View {
     @Environment(\.modelContext) private var context
     @Query(filter: #Predicate<Task> { !$0.isDone }, sort: [SortDescriptor(\.createdAt, order: .reverse)])
     private var tasks: [Task]
-    @Query(sort: [SortDescriptor(\.sortOrder)]) private var categories: [Category]
+    @Query(sort: [SortDescriptor(\Category.sortOrder)]) private var categories: [Category]
     @State private var isAddPresented = false
 
     var body: some View {
