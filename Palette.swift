@@ -2,6 +2,7 @@ import SwiftUI
 
 enum Palette {
     private static let colors: [String: Color] = [
+        "Inbox": Color(red: 0.85, green: 0.9, blue: 0.95),
         "Work": Color(red: 0.45, green: 0.63, blue: 0.95),
         "Home": Color(red: 0.62, green: 0.78, blue: 0.63),
         "Errands": Color(red: 0.98, green: 0.74, blue: 0.57),
@@ -11,9 +12,12 @@ enum Palette {
         "Calm": Color(red: 0.73, green: 0.87, blue: 0.92)
     ]
 
+    static let defaultPreset: (name: String, icon: String, colorID: String) =
+        ("Inbox", "tray.fill", "Inbox")
+
     static func color(for id: String?) -> Color {
         guard let id else {
-            return Color(red: 0.85, green: 0.9, blue: 0.95)
+            return colors[defaultPreset.colorID] ?? Color(red: 0.85, green: 0.9, blue: 0.95)
         }
         if let color = colors[id] {
             return color
@@ -21,11 +25,12 @@ enum Palette {
         if let parsed = Color(hex: id) {
             return parsed
         }
-        return Color(red: 0.85, green: 0.9, blue: 0.95)
+        return colors[defaultPreset.colorID] ?? Color(red: 0.85, green: 0.9, blue: 0.95)
     }
 
     static var defaults: [(name: String, icon: String, colorID: String)] {
         [
+            defaultPreset,
             ("Work", "briefcase.fill", "Work"),
             ("Home", "house.fill", "Home"),
             ("Errands", "cart.fill", "Errands"),

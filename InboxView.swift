@@ -80,7 +80,11 @@ struct InboxView: View {
     }
 
     private func taskRow(_ task: Task) -> some View {
-        let tint = Palette.color(for: task.category?.colorID)
+        let fallback = Palette.defaultPreset
+        let resolvedCategory = task.category ?? defaultCategory
+        let tint = Palette.color(for: resolvedCategory?.colorID ?? fallback.colorID)
+        let displayName = resolvedCategory?.name ?? fallback.name
+        let displayIcon = resolvedCategory?.icon ?? fallback.icon
         return GlassCard(tint: tint) {
             HStack(alignment: .center, spacing: 16) {
                 VStack(alignment: .leading, spacing: 6) {
@@ -105,14 +109,12 @@ struct InboxView: View {
                     }
                 }
                 Spacer(minLength: 12)
-                if let category = task.category {
-                    Label(category.name, systemImage: category.icon)
-                        .labelStyle(.iconOnly)
-                        .font(.title3)
-                        .symbolRenderingMode(.palette)
-                        .foregroundStyle(tint)
-                        .accessibilityHidden(true)
-                }
+                Label(displayName, systemImage: displayIcon)
+                    .labelStyle(.iconOnly)
+                    .font(.title3)
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(tint)
+                    .accessibilityHidden(true)
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -155,6 +157,10 @@ struct InboxView: View {
                 .ignoresSafeArea()
             )
         }
+    }
+
+    private var defaultCategory: Category? {
+        categories.first { $0.sortOrder == 0 }
     }
 
     private var floatingAddButton: some View {

@@ -96,7 +96,13 @@ struct QuickAddView: View {
         let trimmed = trimmedTitle
         guard !trimmed.isEmpty else { return }
 
-        let task = Task(title: trimmed)
+        var defaultCategory: Category?
+        let descriptor = FetchDescriptor<Category>(predicate: #Predicate { $0.sortOrder == 0 })
+        if let fetched = try? context.fetch(descriptor) {
+            defaultCategory = fetched.first
+        }
+
+        let task = Task(title: trimmed, category: defaultCategory)
         context.insert(task)
 
         do {
