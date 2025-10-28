@@ -44,18 +44,13 @@ struct BucketOrb: View {
                             .opacity(isGlowing ? 1 : 0)
                     )
                 Circle()
-                    .fill(
-                        .linearGradient(
-                            colors: [
-                                Color.white.opacity(0.35),
-                                tint.opacity(0.22),
-                                tint.opacity(0.08)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(.clear)
                     .frame(width: 58, height: 58)
+                    .glassEffect(
+                        tint
+                            .interactive(),
+                        in: .circle
+                    )
                     .overlay(
                         Circle()
                             .strokeBorder(
@@ -71,6 +66,12 @@ struct BucketOrb: View {
                             )
                             .blendMode(.plusLighter)
                     )
+                    .overlay(
+                        Circle()
+                            .fill(tint.opacity(0.18))
+                            .blur(radius: 22)
+                            .blendMode(.plusLighter)
+                    )
                     .overlay(alignment: .topLeading) {
                         Circle()
                             .fill(Color.white.opacity(0.45))
@@ -80,10 +81,10 @@ struct BucketOrb: View {
                     }
                     .overlay(alignment: .bottomTrailing) {
                         Circle()
-                            .fill(tint.opacity(0.25))
-                            .frame(width: 18, height: 18)
-                            .blur(radius: 10)
-                            .offset(x: 6, y: 8)
+                            .fill(tint.opacity(0.28))
+                            .frame(width: 22, height: 22)
+                            .blur(radius: 14)
+                            .offset(x: 8, y: 10)
                     }
                     .shadow(color: tint.opacity(0.25), radius: 14, x: 0, y: 8)
                 CategoryIconView(icon: category.icon, tint: tint)
