@@ -1,15 +1,12 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import Foundation
-<<<<<<< HEAD
 #if canImport(UIKit)
 import UIKit
 #endif
 #if canImport(AppKit)
 import AppKit
 #endif
-=======
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
 
 struct BucketOrb: View {
     let category: Category
@@ -21,7 +18,6 @@ struct BucketOrb: View {
         VStack(spacing: 8) {
             ZStack {
                 Circle()
-<<<<<<< HEAD
                     .fill(
                         LinearGradient(
                             colors: [
@@ -51,18 +47,6 @@ struct BucketOrb: View {
                             .padding(4), alignment: .top
                     )
                 CategoryIconView(icon: category.icon)
-=======
-                    .fill(.clear)
-                    .frame(width: 68, height: 68)
-                    .glassEffect(.regular.tint(Palette.color(for: category.colorID)), in: .circle)
-                    .overlay(
-                        Circle()
-                            .strokeBorder(.white.opacity(0.18), lineWidth: 1)
-                    )
-                Image(systemName: category.icon)
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(.primary)
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
                     .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
             }
             .scaleEffect(isHovering ? 1.08 : 1.0)
@@ -113,7 +97,6 @@ struct BucketOrb: View {
         }
     }
 }
-<<<<<<< HEAD
 
 private struct CategoryIconView: View {
     let icon: String
@@ -144,5 +127,3 @@ private struct CategoryIconView: View {
         #endif
     }
 }
-=======
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
