@@ -83,17 +83,6 @@ struct InboxView: View {
         let tint = Palette.color(for: task.category?.colorID)
         return GlassCard(tint: tint) {
             HStack(alignment: .center, spacing: 16) {
-                Button {
-                    toggle(task)
-                } label: {
-                    Image(systemName: task.isDone ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
-                        .foregroundStyle(task.isDone ? .green : .secondary)
-                        .contentTransition(.symbolEffect(.replace))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(task.isDone ? "Mark incomplete" : "Mark complete")
-
                 VStack(alignment: .leading, spacing: 6) {
                     Text(task.title)
                         .font(.headline)
@@ -127,12 +116,19 @@ struct InboxView: View {
             }
         }
         .contentShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .onTapGesture {
+            toggle(task)
+        }
         .onDrag {
             Haptic.play(.tapLight)
             return NSItemProvider(object: task.id.uuidString as NSString)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(Text(task.title))
+        .accessibilityHint(Text(task.isDone ? "Double-tap to mark as incomplete" : "Double-tap to mark as complete"))
+        .accessibilityAction {
+            toggle(task)
+        }
     }
 
     private var scenicBackground: some View {
