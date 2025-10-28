@@ -15,12 +15,8 @@ struct BucketOrb: View {
     @State private var isHovering = false
     @State private var isGlowing = false
 
-    // Calculate dynamic tint based on task count for Liquid Glass
-    // More tasks = slightly more visible tint, fewer tasks = more transparent
-    private var dynamicTintOpacity: Double {
-        let taskCount = category.tasks.count
-        // Ultra-subtle tinting: 0.05 (almost invisible) to 0.12 (very subtle)
-        return min(0.05 + (Double(taskCount) * 0.007), 0.12)
+    private var tint: Color {
+        Palette.color(for: category.colorID)
     }
 
     var body: some View {
@@ -29,25 +25,25 @@ struct BucketOrb: View {
                 Circle()
                     .fill(.clear)
                     .frame(width: 72, height: 72)
-                    // Authentic Apple Liquid Glass with dynamic interactive tint
+                    // Crystal clear Apple Liquid Glass bubble
                     .glassEffect(
-                        .regular
-                            .interactive()
-                            .tint(Palette.color(for: category.colorID).opacity(isGlowing ? 0.25 : dynamicTintOpacity)),
+                        .clear
+                            .interactive(),
                         in: .circle
                     )
                     .overlay(
                         Circle()
-                            .strokeBorder(.white.opacity(0.18), lineWidth: 0.5)
+                            .strokeBorder(.white.opacity(0.22), lineWidth: 0.6)
+                            .blendMode(.plusLighter)
                     )
-                    // Glow effect when task is dropped
-                    .shadow(
-                        color: Palette.color(for: category.colorID).opacity(isGlowing ? 0.6 : 0),
-                        radius: isGlowing ? 24 : 0,
-                        x: 0,
-                        y: 0
+                    .shadow(color: .black.opacity(0.35), radius: 18, x: 0, y: 10)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(.white.opacity(isGlowing ? 0.5 : 0), lineWidth: 1.4)
+                            .blur(radius: isGlowing ? 6 : 12)
+                            .opacity(isGlowing ? 1 : 0)
                     )
-                CategoryIconView(icon: category.icon)
+                CategoryIconView(icon: category.icon, tint: tint)
                     .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1.5)
             }
             .scaleEffect(isHovering ? 1.08 : 1.0)
@@ -115,16 +111,19 @@ struct BucketOrb: View {
 
 private struct CategoryIconView: View {
     let icon: String
+    let tint: Color
 
     var body: some View {
         Group {
             if isSymbol(icon) {
                 Image(systemName: icon)
                     .font(.title2.weight(.semibold))
-                    .foregroundStyle(.primary)
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(tint)
             } else {
                 Text(icon)
                     .font(.system(size: 32))
+                    .foregroundStyle(tint)
             }
         }
         .frame(width: 40, height: 40)

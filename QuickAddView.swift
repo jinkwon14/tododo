@@ -8,6 +8,10 @@ struct QuickAddView: View {
     @State private var title: String = ""
     @FocusState private var isFocused: Bool
 
+    private var trimmedTitle: String {
+        title.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     var body: some View {
         VStack(spacing: 20) {
             Capsule()
@@ -33,22 +37,24 @@ struct QuickAddView: View {
                     .background(
                         Capsule()
                             .fill(.clear)
-                            // Authentic Apple Liquid Glass for button
+                            // Crystal clear Apple Liquid Glass for primary button
                             .glassEffect(
-                                .regular
-                                    .interactive()
-                                    .tint(Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.08 : 0.2)),
+                                .clear
+                                    .interactive(),
                                 in: .capsule
                             )
                             .overlay(
                                 Capsule()
                                     .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
                             )
-                            .shadow(color: Palette.color(for: "Calm").opacity(0.25), radius: 12, x: 0, y: 6)
+                            .shadow(color: .black.opacity(0.25), radius: 12, x: 0, y: 6)
                     )
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(
+                        Palette.color(for: "Calm")
+                    )
+                    .opacity(trimmedTitle.isEmpty ? 0.45 : 1)
             }
-            .disabled(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .disabled(trimmedTitle.isEmpty)
         }
         .padding(24)
         .background(
@@ -87,7 +93,7 @@ struct QuickAddView: View {
     }
 
     private func addTask() {
-        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = trimmedTitle
         guard !trimmed.isEmpty else { return }
 
         let task = Task(title: trimmed)
