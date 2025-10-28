@@ -1,6 +1,12 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
 
 struct BucketOrb: View {
     let category: Category
@@ -12,16 +18,35 @@ struct BucketOrb: View {
         VStack(spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(.clear)
-                    .frame(width: 68, height: 68)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Palette.color(for: category.colorID).opacity(0.85),
+                                Palette.color(for: category.colorID).opacity(0.55)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 72, height: 72)
                     .glassEffect(.regular.tint(Palette.color(for: category.colorID)), in: .circle)
                     .overlay(
                         Circle()
-                            .strokeBorder(.white.opacity(0.18), lineWidth: 1)
+                            .strokeBorder(.white.opacity(0.22), lineWidth: 1)
                     )
-                Image(systemName: category.icon)
-                    .font(.title2.weight(.semibold))
-                    .foregroundStyle(.primary)
+                    .overlay(
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.white.opacity(0.35), .clear],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                            .blur(radius: 6)
+                            .padding(4), alignment: .top
+                    )
+                CategoryIconView(icon: category.icon)
                     .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
             }
             .scaleEffect(isHovering ? 1.08 : 1.0)
@@ -70,5 +95,35 @@ struct BucketOrb: View {
         group.notify(queue: .main) {
             completion(collected)
         }
+    }
+}
+
+private struct CategoryIconView: View {
+    let icon: String
+
+    var body: some View {
+        Group {
+            if isSymbol(icon) {
+                Image(systemName: icon)
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(.primary)
+            } else {
+                Text(icon)
+                    .font(.system(size: 32))
+            }
+        }
+        .frame(width: 40, height: 40)
+        .minimumScaleFactor(0.5)
+        .accessibilityHidden(true)
+    }
+
+    private func isSymbol(_ name: String) -> Bool {
+        #if canImport(UIKit)
+        return UIImage(systemName: name) != nil
+        #elseif canImport(AppKit)
+        return NSImage(systemSymbolName: name, accessibilityDescription: nil) != nil
+        #else
+        return false
+        #endif
     }
 }

@@ -12,10 +12,16 @@ enum Palette {
     ]
 
     static func color(for id: String?) -> Color {
-        guard let id, let color = colors[id] else {
+        guard let id else {
             return Color(red: 0.85, green: 0.9, blue: 0.95)
         }
-        return color
+        if let color = colors[id] {
+            return color
+        }
+        if let parsed = Color(hex: id) {
+            return parsed
+        }
+        return Color(red: 0.85, green: 0.9, blue: 0.95)
     }
 
     static var defaults: [(name: String, icon: String, colorID: String)] {
