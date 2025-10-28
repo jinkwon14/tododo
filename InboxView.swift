@@ -8,11 +8,8 @@ struct InboxView: View {
     private var tasks: [Task]
     @Query(sort: [SortDescriptor(\Category.sortOrder)]) private var categories: [Category]
     @State private var isAddPresented = false
-<<<<<<< HEAD
     @State private var isAddCategoryPresented = false
     @State private var pendingCategoryID: UUID?
-=======
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
 
     init() {}
 
@@ -33,11 +30,7 @@ struct InboxView: View {
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
-<<<<<<< HEAD
                 .background(scenicBackground)
-=======
-                .background(gradientBackground)
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
                 .safeAreaPadding(.bottom, 120)
                 .refreshable {
                     await MainActor.run {
@@ -63,15 +56,12 @@ struct InboxView: View {
             QuickAddView()
                 .presentationBackground(.clear)
         }
-<<<<<<< HEAD
         .sheet(isPresented: $isAddCategoryPresented) {
             NewCategoryView(onSave: { category in
                 pendingCategoryID = category.id
             })
             .presentationBackground(.thinMaterial)
         }
-=======
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
         .onAppear(perform: ensureDefaultCategories)
     }
 
@@ -144,7 +134,6 @@ struct InboxView: View {
         .accessibilityLabel(Text(task.title))
     }
 
-<<<<<<< HEAD
     private var scenicBackground: some View {
         ZStack {
             Image("AuroraScenic")
@@ -179,19 +168,6 @@ struct InboxView: View {
                 .ignoresSafeArea()
             )
         }
-=======
-    private var gradientBackground: some View {
-        LinearGradient(
-            colors: [
-                Color(red: 0.05, green: 0.1, blue: 0.15),
-                Color(red: 0.12, green: 0.18, blue: 0.24),
-                Color(red: 0.08, green: 0.16, blue: 0.18)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
     }
 
     private var floatingAddButton: some View {
@@ -202,7 +178,6 @@ struct InboxView: View {
                 .padding()
                 .background(
                     Circle()
-<<<<<<< HEAD
                         .fill(
                             RadialGradient(
                                 colors: [Palette.color(for: "Calm").opacity(0.85), Palette.color(for: "Calm").opacity(0.45)],
@@ -212,10 +187,6 @@ struct InboxView: View {
                             )
                         )
                         .shadow(color: Palette.color(for: "Calm").opacity(0.3), radius: 18, x: 0, y: 10)
-=======
-                        .fill(Palette.color(for: "Calm").opacity(0.8))
-                        .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 8)
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
                 )
         }
         .buttonStyle(.plain)
@@ -232,17 +203,12 @@ struct InboxView: View {
                 .frame(height: 112)
                 .overlay(
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
-<<<<<<< HEAD
                         .strokeBorder(.white.opacity(0.18), lineWidth: 1.2)
-=======
-                        .strokeBorder(.white.opacity(0.12), lineWidth: 1)
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 36, style: .continuous)
                         .fill(.clear)
                         .glassEffect(.regular, in: .rect(cornerRadius: 36))
-<<<<<<< HEAD
                         .shadow(color: .black.opacity(0.25), radius: 24, x: 0, y: 18)
                 )
                 .overlay(alignment: .center) {
@@ -298,19 +264,6 @@ struct InboxView: View {
                                 pendingCategoryID = nil
                             }
                         }
-=======
-                )
-                .overlay(alignment: .center) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 4) {
-                            ForEach(categories) { category in
-                                BucketOrb(category: category, onDropIDs: { ids in
-                                    assign(ids: ids, to: category)
-                                })
-                            }
-                        }
-                        .padding(.horizontal, 24)
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
                     }
                 }
                 .padding(.horizontal)
