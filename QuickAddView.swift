@@ -67,12 +67,9 @@ struct QuickAddView: View {
         )
         .background(
             ZStack {
-                Image("AuroraScenic")
-                    .resizable()
-                    .scaledToFill()
-                    .blur(radius: 18)
-                    .overlay(Color.black.opacity(0.45))
-                    .ignoresSafeArea()
+                AuroraBackground()
+                    .blur(radius: 20)
+                    .overlay(Color.black.opacity(0.35))
                 LinearGradient(
                     colors: [Color.clear, Color.black.opacity(0.45)],
                     startPoint: .top,

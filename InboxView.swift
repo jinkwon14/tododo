@@ -136,18 +136,8 @@ struct InboxView: View {
 
     private var scenicBackground: some View {
         ZStack {
-            Image("AuroraScenic")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
-                .overlay(
-                    LinearGradient(
-                        colors: [Color.black.opacity(0.35), Color.black.opacity(0.75)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-                .blur(radius: 6)
+            AuroraBackground()
+                .blur(radius: 12)
             LinearGradient(
                 colors: [
                     Color(red: 0.09, green: 0.15, blue: 0.2).opacity(0.9),
