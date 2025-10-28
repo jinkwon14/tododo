@@ -43,8 +43,50 @@ struct BucketOrb: View {
                             .blur(radius: isGlowing ? 6 : 12)
                             .opacity(isGlowing ? 1 : 0)
                     )
+                Circle()
+                    .fill(
+                        .linearGradient(
+                            colors: [
+                                Color.white.opacity(0.35),
+                                tint.opacity(0.22),
+                                tint.opacity(0.08)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 58, height: 58)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(
+                                .linearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.55),
+                                        Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 0.75
+                            )
+                            .blendMode(.plusLighter)
+                    )
+                    .overlay(alignment: .topLeading) {
+                        Circle()
+                            .fill(Color.white.opacity(0.45))
+                            .frame(width: 24, height: 24)
+                            .blur(radius: 12)
+                            .offset(x: -6, y: -8)
+                    }
+                    .overlay(alignment: .bottomTrailing) {
+                        Circle()
+                            .fill(tint.opacity(0.25))
+                            .frame(width: 18, height: 18)
+                            .blur(radius: 10)
+                            .offset(x: 6, y: 8)
+                    }
+                    .shadow(color: tint.opacity(0.25), radius: 14, x: 0, y: 8)
                 CategoryIconView(icon: category.icon, tint: tint)
-                    .shadow(color: .black.opacity(0.2), radius: 3, x: 0, y: 1.5)
             }
             .scaleEffect(isHovering ? 1.08 : 1.0)
             // Smooth liquid-like animations for all state changes
