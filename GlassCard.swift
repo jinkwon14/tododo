@@ -17,7 +17,6 @@ struct GlassCard<Content: View>: View {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(.clear)
                     .glassEffect(.regular.tint(tint), in: .rect(cornerRadius: 24))
-<<<<<<< HEAD
                     .overlay(
                         LinearGradient(
                             colors: [Color.white.opacity(0.35), Color.white.opacity(0.05)],
@@ -41,9 +40,6 @@ struct GlassCard<Content: View>: View {
                     .offset(y: 12)
                     .opacity(0.6)
             }
-=======
-            )
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
     }
 }
 
