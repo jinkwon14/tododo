@@ -32,7 +32,6 @@ struct QuickAddView: View {
                     .padding(.vertical, 12)
                     .background(
                         Capsule()
-<<<<<<< HEAD
                             .fill(
                                 LinearGradient(
                                     colors: [
@@ -44,9 +43,6 @@ struct QuickAddView: View {
                                 )
                             )
                             .shadow(color: Palette.color(for: "Calm").opacity(0.35), radius: 16, x: 0, y: 10)
-=======
-                            .fill(Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.3 : 0.8))
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
                     )
                     .foregroundStyle(.primary)
             }
@@ -57,7 +53,6 @@ struct QuickAddView: View {
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(.clear)
                 .glassEffect(.clear, in: .rect(cornerRadius: 32))
-<<<<<<< HEAD
                 .overlay(
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
                         .stroke(.white.opacity(0.12), lineWidth: 1)
@@ -79,8 +74,6 @@ struct QuickAddView: View {
                 )
                 .ignoresSafeArea()
             }
-=======
->>>>>>> bdcba1a (Initialize HealingTodoApp Xcode project with Liquid Glass UI)
         )
         .presentationDetents([.fraction(0.35)])
         .onAppear {
