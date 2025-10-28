@@ -17,39 +17,22 @@ struct GlassCard<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                tint.opacity(0.18),
-                                tint.opacity(0.08)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    // Apple Liquid Glass UI with interactive modifier
+                    .fill(.clear)
+                    // Authentic Apple Liquid Glass UI - primary translucent material
                     .glassEffect(
                         .regular
                             .interactive()
-                            .tint(tint.opacity(isPressed ? 0.4 : 0.25)),
+                            .tint(tint.opacity(isPressed ? 0.15 : 0.08)),
                         in: .rect(cornerRadius: 24)
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: 24, style: .continuous)
-                            .stroke(.white.opacity(0.12), lineWidth: 1)
+                            .stroke(.white.opacity(0.15), lineWidth: 0.5)
                     )
             )
-            .shadow(color: tint.opacity(0.25), radius: 16, x: 0, y: 12)
+            .shadow(color: tint.opacity(0.2), radius: 20, x: 0, y: 10)
             // Smooth liquid-like animations for state changes
             .animation(.spring(response: 0.35, dampingFraction: 0.65), value: isPressed)
-            .overlay(alignment: .bottom) {
-                Rectangle()
-                    .fill(tint.opacity(0.22))
-                    .frame(height: 2)
-                    .blur(radius: 6)
-                    .offset(y: 12)
-                    .opacity(0.7)
-            }
     }
 }
 

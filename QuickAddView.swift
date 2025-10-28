@@ -32,17 +32,19 @@ struct QuickAddView: View {
                     .padding(.vertical, 12)
                     .background(
                         Capsule()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.25 : 0.95),
-                                        Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.2 : 0.6)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                            .fill(.clear)
+                            // Authentic Apple Liquid Glass for button
+                            .glassEffect(
+                                .regular
+                                    .interactive()
+                                    .tint(Palette.color(for: "Calm").opacity(title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.08 : 0.2)),
+                                in: .capsule
                             )
-                            .shadow(color: Palette.color(for: "Calm").opacity(0.35), radius: 16, x: 0, y: 10)
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                            )
+                            .shadow(color: Palette.color(for: "Calm").opacity(0.25), radius: 12, x: 0, y: 6)
                     )
                     .foregroundStyle(.primary)
             }
@@ -52,12 +54,16 @@ struct QuickAddView: View {
         .background(
             RoundedRectangle(cornerRadius: 32, style: .continuous)
                 .fill(.clear)
-                .glassEffect(.clear, in: .rect(cornerRadius: 32))
+                // Authentic Apple Liquid Glass - clear variant for sheet background
+                .glassEffect(
+                    .clear.interactive(),
+                    in: .rect(cornerRadius: 32)
+                )
                 .overlay(
                     RoundedRectangle(cornerRadius: 32, style: .continuous)
-                        .stroke(.white.opacity(0.12), lineWidth: 1)
+                        .stroke(.white.opacity(0.15), lineWidth: 0.5)
                 )
-                .shadow(color: .black.opacity(0.25), radius: 24, x: 0, y: 18)
+                .shadow(color: .black.opacity(0.3), radius: 30, x: 0, y: 15)
         )
         .background(
             ZStack {

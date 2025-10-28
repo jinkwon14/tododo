@@ -76,10 +76,14 @@ struct NewCategoryView: View {
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
                     .fill(.clear)
-                    .glassEffect(.regular, in: .rect(cornerRadius: 28))
+                    // Authentic Apple Liquid Glass for form container
+                    .glassEffect(
+                        .regular.interactive(),
+                        in: .rect(cornerRadius: 28)
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .stroke(.white.opacity(0.15), lineWidth: 1)
+                            .stroke(.white.opacity(0.15), lineWidth: 0.5)
                     )
             )
 
@@ -97,16 +101,21 @@ struct NewCategoryView: View {
                     .padding(.vertical, 14)
                     .background(
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [color.opacity(0.95), color.opacity(0.55)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                            .fill(.clear)
+                            // Authentic Apple Liquid Glass for save button
+                            .glassEffect(
+                                .regular
+                                    .interactive()
+                                    .tint(color.opacity(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.08 : 0.22)),
+                                in: .rect(cornerRadius: 20)
                             )
-                            .shadow(color: color.opacity(0.4), radius: 14, x: 0, y: 10)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .strokeBorder(.white.opacity(0.2), lineWidth: 0.5)
+                            )
+                            .shadow(color: color.opacity(0.3), radius: 12, x: 0, y: 8)
                     )
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
             }
             .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
