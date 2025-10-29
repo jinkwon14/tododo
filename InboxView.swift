@@ -13,6 +13,8 @@ struct InboxView: View {
     @State private var activePushPopTaskID: UUID?
     @State private var pickerAnchor: CGRect?
     @State private var rowFrames: [UUID: CGRect] = [:]
+    @State private var categoryButtonFrames: [UUID: CGRect] = [:]
+    @State private var pushPopDragLocation: CGPoint?
     @State private var skipNextTapTaskID: UUID?
 
     init() {}
@@ -38,6 +40,14 @@ struct InboxView: View {
                 .safeAreaPadding(.bottom, 120)
                 .onPreferenceChange(TaskRowFramePreferenceKey.self) { value in
                     rowFrames = value
+                    if let id = activePushPopTaskID, let frame = value[id] {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            pickerAnchor = frame
+                        }
+                    }
+                }
+                .onPreferenceChange(CategoryButtonFramePreferenceKey.self) { value in
+                    categoryButtonFrames = value
                     if let id = activePushPopTaskID, let frame = value[id] {
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                             pickerAnchor = frame
@@ -85,10 +95,13 @@ struct InboxView: View {
                     anchorRect: anchor,
                     selectedCategoryID: task.category?.id,
                     isUnassigned: task.category == nil,
+                    dragLocation: $pushPopDragLocation,
                     onSelection: { category in
+                        Haptic.play(.dropSuccess)
                         apply(category: category, to: taskID)
                     },
                     onCancel: {
+                        pushPopDragLocation = nil
                         dismissPicker()
                     }
                 )
@@ -132,28 +145,74 @@ struct InboxView: View {
                 )
         }
         .buttonStyle(.plain)
-        .simultaneousGesture(
-            LongPressGesture(minimumDuration: 0.25)
-                .onEnded { _ in
-                    Haptic.play(.tapLight)
-                    skipNextTapTaskID = task.id
-                    togglePicker(for: task.id)
-                }
+        .background(
+            GeometryReader { proxy in
+                Color.clear.preference(
+                    key: CategoryButtonFramePreferenceKey.self,
+                    value: [task.id: proxy.frame(in: .named("pickerArea"))]
+                )
+            }
         )
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in
-                    guard activePushPopTaskID != task.id else { return }
-                    Haptic.play(.tapLight)
-                    skipNextTapTaskID = task.id
-                    togglePicker(for: task.id)
-                }
-        )
+        .simultaneousGesture(dragGesture(for: task))
         .accessibilityLabel("Change category")
     }
 
+    private func dragGesture(for task: Task) -> some Gesture {
+        DragGesture(minimumDistance: 0, coordinateSpace: .named("pickerArea"))
+            .onChanged { value in
+                if activePushPopTaskID != task.id {
+                    Haptic.play(.tapLight)
+                    skipNextTapTaskID = task.id
+                    presentPicker(for: task.id)
+                }
+
+                guard let anchor = pickerAnchor ?? categoryButtonFrames[task.id] else { return }
+                pushPopDragLocation = CGPoint(
+                    x: value.location.x - anchor.midX,
+                    y: value.location.y - anchor.midY
+                )
+            }
+            .onEnded { value in
+                skipNextTapTaskID = nil
+                guard activePushPopTaskID == task.id else { return }
+
+                pushPopDragLocation = nil
+
+                guard let anchor = pickerAnchor ?? categoryButtonFrames[task.id] else {
+                    dismissPicker()
+                    return
+                }
+
+                let relativeLocation = CGPoint(
+                    x: value.location.x - anchor.midX,
+                    y: value.location.y - anchor.midY
+                )
+
+                guard let result = CategoryPushPopPicker.selection(for: relativeLocation, categories: categories) else {
+                    dismissPicker()
+                    return
+                }
+
+                if result.isNone {
+                    Haptic.play(.dropSuccess)
+                    apply(category: nil, to: task.id)
+                    return
+                }
+
+                if let id = result.categoryID,
+                   let category = categories.first(where: { $0.id == id }) {
+                    Haptic.play(.dropSuccess)
+                    apply(category: category, to: task.id)
+                    return
+                }
+
+                dismissPicker()
+            }
+    }
+
     private func presentPicker(for taskID: UUID) {
-        if let frame = rowFrames[taskID] {
+        let targetFrame = categoryButtonFrames[taskID] ?? rowFrames[taskID]
+        if let frame = targetFrame {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 pickerAnchor = frame
                 activePushPopTaskID = taskID
@@ -161,12 +220,14 @@ struct InboxView: View {
         } else {
             activePushPopTaskID = taskID
         }
+        pushPopDragLocation = nil
     }
 
     private func togglePicker(for taskID: UUID) {
         if activePushPopTaskID == taskID {
             dismissPicker()
         } else {
+            pushPopDragLocation = nil
             presentPicker(for: taskID)
         }
     }
@@ -430,6 +491,7 @@ struct InboxView: View {
             activePushPopTaskID = nil
             pickerAnchor = nil
         }
+        pushPopDragLocation = nil
         skipNextTapTaskID = nil
     }
 
@@ -453,6 +515,14 @@ struct InboxView: View {
 }
 
 private struct TaskRowFramePreferenceKey: PreferenceKey {
+    static var defaultValue: [UUID: CGRect] { [:] }
+
+    static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
+        value.merge(nextValue(), uniquingKeysWith: { $1 })
+    }
+}
+
+private struct CategoryButtonFramePreferenceKey: PreferenceKey {
     static var defaultValue: [UUID: CGRect] { [:] }
 
     static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
