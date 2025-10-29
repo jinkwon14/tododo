@@ -37,7 +37,7 @@ struct InboxView: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
                 .background(scenicBackground)
-                .safeAreaPadding(.bottom, 120)
+                .safeAreaPadding(.bottom, 80)
                 .onPreferenceChange(TaskRowFramePreferenceKey.self) { value in
                     rowFrames = value
                     if let id = activePushPopTaskID, let frame = value[id] {
@@ -70,8 +70,10 @@ struct InboxView: View {
                     }
                 }
 
-                bottomTray
                 floatingAddButton
+            }
+            .safeAreaInset(edge: .top) {
+                categoryTray
             }
         }
         .coordinateSpace(name: "pickerArea")
@@ -341,85 +343,82 @@ struct InboxView: View {
         }
         .buttonStyle(.plain)
         .padding(.trailing, 24)
-        .padding(.bottom, 140)
+        .padding(.bottom, 32)
         .accessibilityLabel("Add task")
     }
 
-    private var bottomTray: some View {
-        VStack {
-            Spacer()
-            RoundedRectangle(cornerRadius: 36, style: .continuous)
-                .fill(.clear)
-                .frame(height: 112)
-                // Authentic Apple Liquid Glass for bottom tray
-                .glassEffect(
-                    .regular.interactive(),
-                    in: .rect(cornerRadius: 36)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 36, style: .continuous)
-                        .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
-                )
-                .shadow(color: .black.opacity(0.3), radius: 28, x: 0, y: 14)
-                .overlay(alignment: .center) {
-                    ScrollViewReader { proxy in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                ForEach(categories) { category in
-                                    BucketOrb(category: category, onDropIDs: { ids in
-                                        assign(ids: ids, to: category)
-                                    })
-                                    .id(category.id)
-                                }
-                                Button {
-                                    isAddCategoryPresented = true
-                                } label: {
-                                    VStack(spacing: 8) {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                                .fill(.clear)
-                                                .frame(width: 72, height: 72)
-                                                // Authentic Apple Liquid Glass for new category button
-                                                .glassEffect(
-                                                    .clear
-                                                        .interactive(),
-                                                    in: .rect(cornerRadius: 24)
-                                                )
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                                                        .strokeBorder(.white.opacity(0.18), lineWidth: 0.5)
-                                                )
-                                                .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 8)
-                                            Image(systemName: "plus")
-                                                .font(.title2.weight(.semibold))
-                                                .symbolRenderingMode(.palette)
-                                                .foregroundStyle(Palette.color(for: "Calm"))
-                                        }
-                                        Text("New")
-                                            .font(.footnote)
-                                            .foregroundStyle(.secondary)
+    private var categoryTray: some View {
+        RoundedRectangle(cornerRadius: 36, style: .continuous)
+            .fill(.clear)
+            .frame(height: 112)
+            // Authentic Apple Liquid Glass for category tray
+            .glassEffect(
+                .regular.interactive(),
+                in: .rect(cornerRadius: 36)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 36, style: .continuous)
+                    .strokeBorder(.white.opacity(0.15), lineWidth: 0.5)
+            )
+            .shadow(color: .black.opacity(0.3), radius: 28, x: 0, y: 14)
+            .overlay(alignment: .center) {
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(categories) { category in
+                                BucketOrb(category: category, onDropIDs: { ids in
+                                    assign(ids: ids, to: category)
+                                })
+                                .id(category.id)
+                            }
+                            Button {
+                                isAddCategoryPresented = true
+                            } label: {
+                                VStack(spacing: 8) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                            .fill(.clear)
+                                            .frame(width: 72, height: 72)
+                                            // Authentic Apple Liquid Glass for new category button
+                                            .glassEffect(
+                                                .clear
+                                                    .interactive(),
+                                                in: .rect(cornerRadius: 24)
+                                            )
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                                                    .strokeBorder(.white.opacity(0.18), lineWidth: 0.5)
+                                            )
+                                            .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 8)
+                                        Image(systemName: "plus")
+                                            .font(.title2.weight(.semibold))
+                                            .symbolRenderingMode(.palette)
+                                            .foregroundStyle(Palette.color(for: "Calm"))
                                     }
-                                    .padding(.horizontal, 12)
+                                    Text("New")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
                                 }
-                                .buttonStyle(.plain)
+                                .padding(.horizontal, 12)
                             }
-                            .padding(.horizontal, 24)
+                            .buttonStyle(.plain)
                         }
-                        .onChange(of: categories.map(\.id)) { _ in
-                            guard let target = pendingCategoryID else { return }
-                            DispatchQueue.main.async {
-                                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                                    proxy.scrollTo(target, anchor: .center)
-                                }
-                                pendingCategoryID = nil
+                        .padding(.horizontal, 24)
+                    }
+                    .onChange(of: categories.map(\.id)) { _ in
+                        guard let target = pendingCategoryID else { return }
+                        DispatchQueue.main.async {
+                            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                                proxy.scrollTo(target, anchor: .center)
                             }
+                            pendingCategoryID = nil
                         }
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 12)
-        }
-        .ignoresSafeArea(edges: .bottom)
+            }
+            .padding(.horizontal)
+            .padding(.top, 12)
+            .padding(.bottom, 4)
     }
 
     private var emptyState: some View {
